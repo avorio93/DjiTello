@@ -35,7 +35,7 @@ class TelloPlus(tello.Tello):
     def __init__(self):
 
         # Logger init
-        self.logger = CustomLogger(self.LOG_NAME, write_file=False).logger
+        self.logger = CustomLogger(self.LOG_NAME, write_file=True).logger
 
         # Create a Tello instance and connect it to the drone
         self.logger.info("Initialization...")
@@ -84,12 +84,15 @@ class TelloPlus(tello.Tello):
         if sleep_time > 0:
             sleep(sleep_time)
 
-        self.logger.debug("Movement ->",
-                          f'left_right:{left_right_velocity}',
-                          f'forward_backward:{forward_backward_velocity}',
-                          f'yaw:{yaw_velocity}',
-                          f'up_down:{up_down_velocity}',
-                          f'sleep:{sleep_time}')
+        if left_right_velocity != 0 or forward_backward_velocity != 0 or yaw_velocity != 0 or up_down_velocity != 0:
+            log_msg = "Movement -> |"
+            log_msg = log_msg + f'left_right: {left_right_velocity} |'
+            log_msg = log_msg + f'forward_backward: {forward_backward_velocity} |'
+            log_msg = log_msg + f'yaw: {yaw_velocity} |'
+            log_msg = log_msg + f'up_down: {up_down_velocity} |'
+            log_msg = log_msg + f'sleep: {sleep_time} |'
+
+            self.logger.debug(log_msg)
 
     def takeoff(self):
         """
@@ -97,7 +100,7 @@ class TelloPlus(tello.Tello):
             In this way, the drone will takes-off avoiding unwanted movements
         """
 
-        self.logger.info('Starting Take-Off')
+        self.logger.info("Starting Take-Off")
 
         super().takeoff()
         self.send_rc_control(0, 0, 0, 0, 2)
@@ -110,26 +113,28 @@ class TelloPlus(tello.Tello):
             In this way, the drone will land avoiding unwanted movements
         """
 
-        self.logger.info('Starting Landing')
+        self.logger.info("Starting Landing")
 
         self.send_rc_control(0, 0, 0, 0, 2)
         super().land()
 
-        self.logger.info('Landing completed')
+        self.logger.info("Landing completed")
 
     def start_streaming(self):
         if not self.stream_on:
             self.streamon()
-            self.logger.info('Streaming: ON')
+            sleep(0.3)
+            self.logger.info("Streaming: ON")
         else:
-            self.logger.warning('Streaming already ON')
+            self.logger.warning("Streaming already ON")
 
     def stop_streaming(self):
         if self.stream_on:
             self.streamoff()
-            self.logger.info('Streaming: OFF')
+            sleep(0.3)
+            self.logger.info("Streaming: OFF")
         else:
-            self.logger.warning('Streaming already OFF')
+            self.logger.warning("Streaming already OFF")
 
     def get_img(self, resize_x: int, resize_y: int):
         """
@@ -139,19 +144,20 @@ class TelloPlus(tello.Tello):
             If zero is passed, it will use the half of resolution of your screen
 
         """
-        width = GetSystemMetrics(0) / 2
-        height = GetSystemMetrics(1) / 2
+        width = int(GetSystemMetrics(0) / 2)
+        height = int(GetSystemMetrics(1) / 2)
 
-        if resize_x != 0:
+        if resize_x > 0:
             width = resize_x
 
-        if resize_y != 0:
+        if resize_y > 0:
             height = resize_y
 
-        img = self.get_frame_read().frame
-        img = cv2.resize(img, (width, height))
-        cv2.imshow("Tello Image", img)
-        cv2.waitKey(1)
+        if self.stream_on:
+            img = self.get_frame_read().frame
+            resized_img = cv2.resize(img, (width, height))
+            cv2.imshow("Tello Image", resized_img)
+            cv2.waitKey(1)
 
         return img
 
@@ -164,6 +170,8 @@ class TelloPlus(tello.Tello):
 
         out_path = out_path + img_name
 
-        cv2.imwrite(out_path, img.frame)
+        cv2.imwrite(out_path, img)
         time.sleep(0.3)
-        self.logger.info("frame captured:", out_path)
+
+        log_msg = "Frame captured: " + out_path
+        self.logger.info(log_msg)
