@@ -103,36 +103,47 @@ class KeyboardController:
         return movements
 
     def exe_command(self) -> bool:
+        """
+            Executes command from keyboard
+            -> Take-Off
+            -> Landing
+            -> Start/Stop Streaming
+            -> Capture images saving on desktop
+        """
         running = True
+
+        # --> Take-Off
         if self.if_key_pressed(self.KEY_TAKEOFF):
+            self.tello_plus.start_streaming()
             self.tello_plus.takeoff()
 
+        # --> Landing
         if self.if_key_pressed(self.KEY_LANDING):
-            if self.tello_plus.stream_on:
-                self.tello_plus.stop_streaming()
             self.tello_plus.land()
+            self.tello_plus.stop_streaming()
             running = False
 
-        if self.tello_plus.is_flying:
+        # --> Start/Stop Streaming
+        if self.if_key_pressed(self.KEY_STREAM):
+            if not self.tello_plus.stream_on:
+                self.tello_plus.start_streaming()
+            else:
+                self.tello_plus.stop_streaming()
 
+        # --> Capture Image and Save on Desktop
+        if self.tello_plus.stream_on:
+            img = self.tello_plus.get_img(0, 0)
+            if self.if_key_pressed(self.KEY_SAVE_IMG):
+                self.tello_plus.save_img(img)
+
+        # --> Move Tello with keyboard
+        if self.tello_plus.is_flying:
             movement = self.get_movements()
             self.tello_plus.send_rc_control(movement[0],
                                             movement[1],
                                             movement[2],
                                             movement[3],
                                             self.TELLO_SPEED)
-
-            if self.if_key_pressed(self.KEY_STREAM):
-                if not self.tello_plus.stream_on:
-                    self.tello_plus.start_streaming()
-                else:
-                    self.tello_plus.stop_streaming()
-
-            if self.tello_plus.stream_on:
-                img = self.tello_plus.get_img(0, 0)
-
-                if self.if_key_pressed(self.KEY_SAVE_IMG):
-                    self.tello_plus.save_img(img)
 
         return running
 
