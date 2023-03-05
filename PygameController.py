@@ -9,7 +9,7 @@ from TelloPlus import TelloPlus
 # GLOBALS
 
 # ---> Constants
-TITLE = "CULA-Tello"
+TITLE = "Zanzara"
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 400
 
@@ -87,6 +87,8 @@ def run(kb_controller: KeyboardController):
             else:
 
                 running = False
+
+                # TODO emergency landing
 
                 # deactivates the pygame library
                 pygame.quit()
