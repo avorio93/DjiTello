@@ -143,6 +143,11 @@ class KeyboardController:
                                             movement[3],
                                             self.TELLO_SPEED)
 
+        # --> Map and Print the Tello path
+        if self.tello_plus.is_flying:
+            movement = self.get_movements()
+            # TODO map the path and print
+
         return running
 
     def emergency_landing(self) -> bool:
