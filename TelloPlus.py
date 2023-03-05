@@ -181,3 +181,4 @@ class TelloPlus(tello.Tello):
 
         log_msg = "Frame captured: " + out_path
         self.logger.info(log_msg)
+        
