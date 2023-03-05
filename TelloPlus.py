@@ -74,7 +74,8 @@ class TelloPlus(tello.Tello):
                         yaw_velocity: int,
                         sleep_time: float):
         """
-            Flying movement with the addiction of a time interval
+            Flying movement with the addiction of a time interval ( overloading base method )
+            It will check also battery level, starting emergency landing if it is too low
         """
 
         super().send_rc_control(left_right_velocity,
@@ -93,6 +94,11 @@ class TelloPlus(tello.Tello):
             log_msg = log_msg + f'sleep: {sleep_time} |'
 
             self.logger.debug(log_msg)
+
+        if self.get_battery() < self.CRITICAL_BATTERY:
+            self.logger.critical("Battery level too low: Starting Emergency Landing")
+            self.land()
+            raise Exception()
 
     def takeoff(self):
         """
@@ -175,4 +181,3 @@ class TelloPlus(tello.Tello):
 
         log_msg = "Frame captured: " + out_path
         self.logger.info(log_msg)
-        
