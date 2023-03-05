@@ -1,9 +1,7 @@
 ####################################################################################################################
 # IMPORTS
 import pygame
-from pygame.event import Event
 from KeyboardController import KeyboardController
-from TelloPlus import TelloPlus
 
 ####################################################################################################################
 # GLOBALS
@@ -21,7 +19,6 @@ SCREEN_HEIGHT = 400
 
 # ---> Functions
 def pygame_init():
-
     # activate the pygame library
     # initiate pygame and give permission
     # to use pygame's functionality.
@@ -67,34 +64,31 @@ def run(kb_controller: KeyboardController):
 
         # iterate over the list of Event objects
         # that was returned by pygame.event.get() method.
-
         quit_prog = False
-        pygame_events = pygame.event.get()
-        for event in pygame_events:
+        events = pygame.event.get()
+        key_pressed = pygame.key.get_pressed()
+        for event in events:
             if event.type == pygame.QUIT:
                 quit_prog = True
 
+        # if event.type != pygame.QUIT:
         if not quit_prog:
+            kb_controller.update_pressed(key_pressed)
+            running = kb_controller.exe_command()
 
-            # if event.type != pygame.QUIT:
-            if not quit_prog:
-                kb_controller.update_pressed(pygame.key.get_pressed())
-                running = kb_controller.exe_command()
+        # If event object type is QUIT
+        # then quitting the pygame
+        # and program both.
+        else:
 
-            # If event object type is QUIT
-            # then quitting the pygame
-            # and program both.
-            else:
+            running = False
+            kb_controller.emergency_landing()
 
-                running = False
+            # deactivates the pygame library
+            pygame.quit()
 
-                # TODO emergency landing
+            # quit the program.
+            quit()
 
-                # deactivates the pygame library
-                pygame.quit()
-
-                # quit the program.
-                quit()
-
-            # Draws the surface object to the screen.
-            pygame.display.update()
+        # Draws the surface object to the screen.
+        pygame.display.update()
