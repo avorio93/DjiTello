@@ -41,7 +41,6 @@ class KeyboardController:
     def __init__(self, tello_plus: TelloPlus):
         self.tello_plus = tello_plus
         self.key_pressed = None
-        # pygame.init()
 
     # ---> Functions
     def update_pressed(self, key_pressed: ScancodeWrapper):
@@ -55,8 +54,6 @@ class KeyboardController:
         my_key = getattr(pygame, 'K_{}'.format(key_name))
         if self.key_pressed[my_key]:
             pressed = True
-
-        # pygame.display.update()
 
         return pressed
 
@@ -110,6 +107,7 @@ class KeyboardController:
             -> Start/Stop Streaming
             -> Capture images saving on desktop
         """
+
         running = True
 
         # --> Take-Off
@@ -147,7 +145,13 @@ class KeyboardController:
 
         return running
 
+    def emergency_landing(self) -> bool:
+        self.tello_plus.land()
+        self.tello_plus.stop_streaming()
+        running = False
+
+        return running
+
     """
     
     """
-    
